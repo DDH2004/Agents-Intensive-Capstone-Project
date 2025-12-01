@@ -1,157 +1,123 @@
-# Flashcard Generator & Study Assistant
+# 📘 AI-Powered PDF Study Assistant  
+## *Summaries + Flashcards from Any PDF*
 
-A Jupyter-based AI agent system that extracts, generates, and displays study flashcards from YouTube video transcripts. Built as a submission for the **Google 5-Day AI Agents Intensive Capstone Project**.
-
----
-
-## 🚀 Overview
-
-This project demonstrates how to build a multi-step, agent-powered workflow that:
-
-1. Fetches a transcript from a YouTube video.
-2. Cleans and preprocesses the transcript.
-3. Generates structured flashcards using an LLM agent.
-4. Displays those flashcards interactively in Jupyter using widgets such as **Accordion** and **ToggleButtons**.
-
-The final result is an end-to-end agent system that transforms long-form educational video content into a manageable study tool.
+This project is a lightweight multi-agent pipeline that converts **PDF documents into clean study notes and flashcards** using Google’s Gemini models. It is optimized for reliability, fast execution, and use inside a Jupyter/VSCode environment.
 
 ---
 
-## 🧠 Features Implemented
+## ✨ Features
 
-### ✔️ Multi-Step Agent Pipeline
+### 🔍 PDF → Notes → Flashcards Pipeline
+- Extracts text **only from PDF files** (via `pypdf`).
+- Splits long PDFs into manageable model-safe chunks.
+- Sequential agent workflow:
+  - **Summarization Agent** – creates structured study notes.
+  - **Flashcard Agent** – generates Q/A flashcards in JSON format.
 
-* **Sequential agents** working in a pipeline:
+### 🧠 Agents Used
+This project uses:
+- **Sequential multi-agent pipeline**
+  - `summarization_agent()`
+  - `flashcard_agent()`
+- **LLM-driven agents** using `gemini-2.5-flash`
+- **Lightweight custom tools**
+  - PDF text extraction  
+  - Text chunking  
+  - LLM wrapper  
 
-  * Transcript Agent → Cleaning Agent → Flashcard Generation Agent → Display Layer.
-* Each agent performs a specific part of the workflow.
+_No parallel, loop, or long-running agents — intentionally simple and reliable._
 
-### ✔️ Tools
-
-* **Built-in tools**: Python / code execution in Jupyter.
-* Light use of **context engineering** to ensure relevant input is passed between steps.
-
-### ✔️ Interactivity
-
-* Uses **ipywidgets** to present flashcards:
-
-  * Accordion view
-  * ToggleButton view
-  * Randomized card shuffling
-
-### ✔️ Clean & Extendable Architecture
-
-* Easy to upgrade with more agent types (quiz generator, summarizer, analyzer, etc.)
-* Modular design where each section can be replaced or improved.
+### 📊 Notebook Display Tools
+- Notes displayed with Markdown.
+- Flashcards shown using **Accordion widgets** (VSCode Jupyter-compatible).
 
 ---
 
-## 🛠️ Installation & Requirements
+## 🏗️ Project Structure
+```
+project/
+│── README.md
+│── notebook.ipynb
+│── sample.pdf
+└── main.py (optional)
+```
 
-### Requirements
+---
 
-* Python 3.10+
-* Jupyter Notebook or JupyterLab
-* Required packages:
+## ▶️ How It Works
 
-  ```bash
-  pip install ipywidgets youtube-transcript-api
-  ```
-* LLM access (e.g., OpenAI, Gemini, local model)
-
-### Enabling Widgets
-
-In JupyterLab:
-
+### 1. Install dependencies
 ```bash
-pip install jupyterlab_widgets
+pip install google-generativeai pypdf pandas ipywidgets
 ```
-
-In classic Jupyter Notebook:
-
-```bash
-jupyter nbextension enable --py widgetsnbextension
+2. Add your Gemini API key
 ```
+genai.configure(api_key="YOUR_KEY_HERE")
+```
+3. Run the pipeline
+```
+full_notes, flashcards = process_file("sample.pdf")
+```
+4. Display the outputs
+```
+show_notes(full_notes)
+show_flashcards(flashcards)
+```
+📁 Core Components (Technical Overview)
+PDF Reader
+Uses pypdf.PdfReader to extract raw text from every page.
 
----
+Text Chunker
+Splits long PDFs into ~6000-character chunks to stay within model limits.
 
-## 📂 Project Structure
+LLM Wrapper
+Unified Gemini API call function:
 
 ```
-/flashcard-agent
-├── notebook.ipynb          # Main project notebook
-├── flashcard_utils.py      # (optional) helper methods
-├── README.md               # This file
+def call_llm(prompt):
+    return genai.GenerativeModel(MODEL).generate_content(prompt).text
 ```
+Summarization Agent
+Converts raw PDF text into structured notes including:
 
----
+- key concepts
 
-## ▶️ How to Use
+- definitions
 
-1. Open the notebook.
-2. Provide the YouTube URL you want to study from.
-3. Run the pipeline cells:
+- examples
 
-   * Extract transcript
-   * Clean transcript
-   * Generate flashcards via the LLM
-   * Display the interactive UI
-4. Use the widgets to flip between questions + answers.
+- relationships
 
----
+Flashcard Agent
+Transforms notes into concise flashcards in JSON format.
 
-## 📘 Example Flashcard JSON Output
+Notebook Display Functions
+- Markdown output for notes
 
-```json
-[
-  {
-    "question": "What is overfitting in machine learning?",
-    "answer": "When a model memorizes the training data instead of generalizing patterns."
-  }
-]
-```
+- Accordion-based display for flashcards
 
----
+📦 Use Cases
+- Reading academic papers
 
-## 🏗️ Agent Architecture Description
+- Reviewing lecture slides
 
-The pipeline follows this structure:
+- Creating revision materials
 
-### 1. Transcript Agent
+- Fast comprehension of long PDFs
 
-* Fetches YouTube transcript using `youtube-transcript-api`.
+🚀 Future Enhancements (Optional)
+To increase rubric satisfaction:
 
-### 2. Cleaning Agent
+- Parallel agents
 
-* Removes timestamps, noise, filler words.
-* Performs light formatting.
+- Long-term memory
 
-### 3. Flashcard Agent (LLM)
+- Context compaction
 
-* Takes processed text & outputs structured flashcards.
-* Ensures consistent formatting.
+- Metrics/logging dashboard
 
-### 4. Flashcard Display Layer
+- A2A protocol orchestration
 
-* Displays flashcards in Jupyter via:
+- Export study notes as PDF
 
-  * Accordion
-  * ToggleButtons (Q/A flip-style)
-
----
-
-## 📈 Limitations & Future Work
-
-### Possible upgrades:
-
-* Add a **Quiz Mode** agent.
-* Add **long-term memory** to store prior video flashcards.
-* Add **retrieval** for reviewing past decks.
-* Add **multi-video summarization**.
-* Add **metrics** for flashcard quality.
-
----
-
-## 🙌 Acknowledgements
-
-Built as part of the **Google AI Agents Intensive Course**.
+- Auto-generated diagrams
